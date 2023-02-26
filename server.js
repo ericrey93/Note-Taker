@@ -1,32 +1,32 @@
-const PORT = process.env.port || 3001;
+const PORT = 3001;
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const app = express();
 const attachNotes = require('./Develop/db/db.json');
-const api = require('./Develop/public/js/index');
+
 
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use('/api', api);
+
 app.use(express.static('public'));
 
-app.get('/api/notes', (req, res) => {
-    res.json(attachNotes.slice(1))
-})
 
 app.get('/', (req, res) => 
-    res.sendFile(path.join(__dirname,'./public/index.html')));
+    res.sendFile(path.join(__dirname,'./Develop/public/index.html')));
 
 app.get('/notes', (req, res) =>
-    res.sendFile(path.join(__dirname,'./public/notes.html')));
+    res.sendFile(path.join(__dirname,'./Develop/public/notes.html')));
 
 app.get('*', (req, res) => 
-    res.sendFile(path.join(__dirname, './public/index.html')));
+    res.sendFile(path.join(__dirname, './Develop/public/index.html')));
 
+app.get('/api/notes', (req, res) => {
+     res.json(attachNotes.slice(1))
+})
 
-    function createNewNote(body, notesArray) {
+    function makeNewNote(body, notesArray) {
         const newNote = body;
         if (!Array.isArray(notesArray))
             notesArray = [];
@@ -39,14 +39,14 @@ app.get('*', (req, res) =>
     
         notesArray.push(newNote);
         fs.writeFileSync(
-            path.join(__dirname, './Develop/db/db.json'),
+            path.join(__dirname, attachNotes),
             JSON.stringify(notesArray, null, 2)
         );
         return newNote;
     }
     
     app.post('/api/notes', (req, res) => {
-        const newNote = createNewNote(req.body, attachNotes);
+        const newNote = makeNewNote(req.body, attachNotes);
         res.json(newNote);
     });
     
@@ -57,11 +57,9 @@ app.get('*', (req, res) =>
             if (note.id == id) {
                 notesArray.splice(i, 1);
                 fs.writeFileSync(
-                    path.join(__dirname, './Develop/db/db.json'),
+                    path.join(__dirname, attachNotes),
                     JSON.stringify(notesArray, null, 2)
                 );
-    
-                break;
             }
         }
     }
